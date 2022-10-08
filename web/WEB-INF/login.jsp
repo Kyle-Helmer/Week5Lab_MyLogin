@@ -20,5 +20,8 @@
         <br>
         <input type="submit" value="Log in">
         </form>
+
+        <h2>${message}</h2>
+        
     </body>
 </html>

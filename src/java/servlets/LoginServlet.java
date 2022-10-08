@@ -15,45 +15,59 @@ import models.User;
  */
 public class LoginServlet extends HttpServlet {
 
-    //displays login screen
-    //handles the logout request {invalidate, start new session) 
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        getServletContext().getRequestDispatcher("/WEB-INF/login.jsp")
-                .forward(request, response);
+        HttpSession session = request.getSession();
+        String logout = request.getParameter("logout");
+        User user = (User) session.getAttribute("user");
+        
+        //if user wants to logout
+        if (logout != null) {
+            session.invalidate();
+            request.setAttribute("message", "You have logged out. Have a great day!");
+            getServletContext().getRequestDispatcher("/WEB-INF/login.jsp")
+                    .forward(request, response);
+        }else if(user != null){ //if a user is already logged in
+            response.sendRedirect("home");
+        }else{ //everything else
+            getServletContext().getRequestDispatcher("/WEB-INF/login.jsp")
+                    .forward(request, response);
+        }
+        
+ 
     }
 
-    //processes the username and password given by the user
-    //redirects the session variable (after the user has successfully logged in)
-    //to the home page (/home)
-    //Message to user if username or password are invalid 
-    //keep text fields filled when redirecting them to login after an unscessful attempt at logging in
+ 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-    
+
         HttpSession session = request.getSession();
-        
+
         AccountService acct = new AccountService();
         User loggedIn = null;
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+
+        request.setAttribute("username", username);
+        request.setAttribute("password", password);
         
-        if(username != null || !username.equals("") || password != null || !password.equals("")){
-          loggedIn = acct.login(username, password);
-          
-          if(loggedIn != null){
-              session.setAttribute("username", loggedIn.getUsername());
-              
-              getServletContext().getRequestDispatcher("/WEB-INF/home.jsp")
-                .forward(request, response);
-          }
+        if (username != null || !username.equals("") || password != null || !password.equals("")) {
+            loggedIn = acct.login(username, password);
+
+            if (loggedIn != null) {
+                session.setAttribute("user", loggedIn);
+                response.sendRedirect("home");
+
+            } else {
+                request.setAttribute("message", "Invalid Entry, please try again");
+                getServletContext().getRequestDispatcher("/WEB-INF/login.jsp")
+                        .forward(request, response);
+            }
         }
-        
-        
-        
+
     }
 
 }

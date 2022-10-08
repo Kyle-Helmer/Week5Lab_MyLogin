@@ -13,8 +13,8 @@
     </head>
     <body>
         <h1>Home Page</h1>
-        <h3>Hello ${username}.</h3>
+        <h3>G'day ${user.getUsername()}, you made it!</h3>
         <br>
-        <a href="login?login">Log Out</a>
+        <a href="login?logout">Log Out</a>
     </body>
 </html>
